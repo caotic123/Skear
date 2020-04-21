@@ -16,4 +16,4 @@ It's entirely written in javascript and uses react-native as front-end and node.
   - Live Rooms
   - Maybe more :#
 
-It's a [hallo]https://hallo.tv inspiration. Thanks hallo ;)
+It's a [hallo](https://hallo.tv) inspiration. Thanks hallo ;)
