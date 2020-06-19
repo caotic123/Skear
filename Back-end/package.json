@@ -10,12 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@elastic/elasticsearch": "^7.6.1",
     "express": "^4.17.1",
     "google-auth-library": "^6.0.0",
     "mongoose": "^5.9.7",
     "moongoose": "0.0.5",
     "nodemon": "^2.0.2",
     "ramda": "^0.27.0",
+    "react-native-gesture-handler": "^1.6.1",
     "socket.io": "^2.3.0"
   }
 }

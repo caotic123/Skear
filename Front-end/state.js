@@ -4,7 +4,7 @@ import Protocols from "./protocols"
 import AsyncStorage from '@react-native-community/async-storage';
 import io from 'socket.io-client';
 
-const socket = io("http://192.168.1.105:8080")
+const socket = io("http://192.168.1.101:8080")
 const protocol = Protocols(socket)
 
 const unique_state_effects = state => id => v => {
@@ -30,6 +30,11 @@ const set_state = set => f => {
   )
 }
 
+const getUser = async () => {
+  const user = JSON.parse(await AsyncStorage.getItem('@user'))
+  return {...user.user, token : user.idToken}
+}
+
 module.exports = ([state, set]) => ({
    
     initial_state : () => useState(state),
@@ -49,8 +54,28 @@ module.exports = ([state, set]) => ({
                : return set_state(set)(prev => set_navigator(prev)(v(prev.data)))
                case (Eff.EDIT_LANGS_PROFILE)
                : {
-                   protocol.send_info_langs(v)
+                   return async () => protocol.send_info_langs(await getUser())(v)
                  }
+               case (Eff.REQUEST_HOME_PAGE)
+               : {
+                  return async () => protocol.request_home_page(await getUser())(v) 
+                 }
+               case (Eff.REQUEST_TOPICS_LIKE) 
+               : {
+                  return async () => protocol.request_topics_like(await getUser())(v) 
+                 }
+               case (Eff.REQUEST_LIKE_TOPIC)
+               : {
+                 return async () => protocol.request_like_topic(await getUser())(v) 
+                 }
+                case (Eff.REQUEST_PARTNERS)
+                : {
+                  return async () => protocol.request_partners(await getUser())(v) 
+                  }
+                case (Eff.SEND_LIKE) 
+                : {
+                  return new Promise(async resolve => {protocol.request_like(await getUser())(v); resolve()})
+                  }
              default : 
         }
     },
@@ -69,6 +94,31 @@ module.exports = ([state, set]) => ({
       }
     },
 
-    on : (path, f) => {socket.on(path, f)}
+    on : (path, f) => {socket.on(path, f)},
+    off : (path) => {socket.off(path)},
+
+    createHandlers : (obj_handler) => {
+      let responser = []
+      for (const v of Object.entries(obj_handler)) {
+        const [id, effect] = v
+        responser.push(id)
+        module.exports([state, set]).on(id, ({data}) => effect(data))
+      }
+
+      return responser
+    },
+
+    kill_handlers : (responser) => {
+      responser.map(x => module.exports([state, set]).off(x))
+    },
+
+    set_bar : (status, handlers) => {
+      state.effects.bar.status = status
+      state.effects.bar.handlers = handlers
+    },
+    set_status_bar : (status) =>  state.effects.bar.status = {...module.exports([state, set]).getBarStatus(), ...status},
+    getBarStatus : () => state.effects.bar.status,
+    getBarHandlers : () => state.effects.bar.handlers
+
 
 })

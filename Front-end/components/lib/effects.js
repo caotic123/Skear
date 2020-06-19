@@ -1,3 +1,4 @@
+
 import App from "./func"
 
 import {
@@ -25,11 +26,11 @@ module.exports = {
    }) (),
 
    // Pure React-Componentes effects
-  alert_msg : x => Alert.alert(x.title, x.msg,
+ /* alert_msg : x => Alert.alert(x.title, x.msg,
     [
       {text: 'Ok'},
     ],
     {cancelable: false},
-  )
+  ) */
 
 }
